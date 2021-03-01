@@ -2,6 +2,7 @@ export type MenuItem = {
   children?: MenuItems
   soon?: boolean
   rootParentType?: ComponentType
+  defaultProps?: any
 }
 
 type MenuItems = Partial<
@@ -11,6 +12,7 @@ type MenuItems = Partial<
 >
 
 export const menuItems: MenuItems = {
+  FormSection: {},
   Accordion: {
     children: {
       Accordion: {},
@@ -97,7 +99,11 @@ export const menuItems: MenuItems = {
   Stack: {},
   Switch: {},
   Tag: {},
-  Text: {},
+  Text: {
+    defaultProps: {
+      children: 'UnTitled Text',
+    },
+  },
   Textarea: {},
   Menu: { soon: true },
   Tab: { soon: true },
@@ -108,6 +114,8 @@ export const menuItems: MenuItems = {
 }
 
 export const componentsList: ComponentType[] = [
+  'FormSection',
+  // 以下是Chakra包组件
   'Accordion',
   'AccordionIcon',
   'AccordionItem',
@@ -173,3 +181,30 @@ export const componentsList: ComponentType[] = [
   'Text',
   'Textarea',
 ]
+
+export const menuFieldsParms = {
+  fields: {
+    label: '字段',
+    expanded: true,
+    components: {
+      'form-item-name': {
+        type: 'form-item',
+        label: '合同名称',
+        defaultProps: {
+          objectName: 'contracts',
+          fieldName: 'name',
+          fieldType: 'text',
+        },
+      },
+      'form-item-amount': {
+        type: 'form-item',
+        label: '合同金额',
+        defaultProps: {
+          objectName: 'contracts',
+          fieldName: 'amount',
+          fieldType: 'currency',
+        },
+      },
+    },
+  },
+}

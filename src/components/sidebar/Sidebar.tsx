@@ -6,14 +6,20 @@ import {
   InputRightElement,
   DarkMode,
   IconButton,
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionIcon,
+  AccordionPanel,
 } from '@chakra-ui/react'
 import { CloseIcon, SearchIcon } from '@chakra-ui/icons'
 import DragItem from './DragItem'
 import { menuItems, MenuItem } from '~componentsList'
 
-const Menu = () => {
+const Menu: React.FC<UIBuilderSidebarComponentProps> = ({ componentTree }) => {
   const [searchTerm, setSearchTerm] = useState('')
-
+  console.log('==componentTree=', componentTree)
+  const components = componentTree
   return (
     <DarkMode>
       <Box
@@ -57,55 +63,183 @@ const Menu = () => {
             )}
           </InputRightElement>
         </InputGroup>
+        <Accordion allowMultiple defaultIndex={[0, 1]} color="#fff">
+          {(components as UIBuilderComponentsGroupProps[])
+            // .filter(c => c.toLowerCase().includes(searchTerm.toLowerCase()))
+            .map((componentGroup, groupIndex) => {
+              const { label, expanded, children: items } = componentGroup
 
-        {(Object.keys(menuItems) as ComponentType[])
-          .filter(c => c.toLowerCase().includes(searchTerm.toLowerCase()))
-          .map(name => {
-            const { children, soon } = menuItems[name] as MenuItem
+              return (
+                <AccordionItem key={'sidebar-group-' + groupIndex.toString()}>
+                  <h2>
+                    <AccordionButton>
+                      <Box flex="1" textAlign="left">
+                        {label}
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    {(items as UIBuilderComponentsItemProps[])
+                      // .filter(c => c.toLowerCase().includes(searchTerm.toLowerCase()))
+                      .map((componentItem, itemIndex) => {
+                        const { type, label, props } = componentItem
+                        // console.log("===xx===", component.type);
+                        return (
+                          <DragItem
+                            key={`sidebar-item-${groupIndex.toString()}-${itemIndex.toString()}`}
+                            label={label}
+                            type={type}
+                            defaultProps={props}
+                          >
+                            {label}
+                          </DragItem>
+                        )
+                      })}
+                  </AccordionPanel>
+                </AccordionItem>
+              )
 
-            if (children) {
-              const elements = Object.keys(children).map(childName => (
-                <DragItem
-                  isChild
-                  key={childName}
-                  label={childName}
-                  type={childName as any}
-                  id={childName as any}
-                  rootParentType={menuItems[name]?.rootParentType || name}
-                >
-                  {childName}
-                </DragItem>
-              ))
+              // const { children, soon } = menuItems[name] as MenuItem
 
-              return [
-                <DragItem
-                  isMeta
-                  soon={soon}
-                  key={`${name}Meta`}
-                  label={name}
-                  type={`${name}Meta` as any}
-                  id={`${name}Meta` as any}
-                  rootParentType={menuItems[name]?.rootParentType || name}
-                >
-                  {name}
-                </DragItem>,
-                ...elements,
-              ]
-            }
+              // if (children) {
+              //   const elements = Object.keys(children).map(childName => (
+              //     <DragItem
+              //       isChild
+              //       key={childName}
+              //       label={childName}
+              //       type={childName as any}
+              //       id={childName as any}
+              //       rootParentType={menuItems[name]?.rootParentType || name}
+              //       defaultProps={menuItems[name]?.defaultProps}
+              //     >
+              //       {childName}
+              //     </DragItem>
+              //   ))
 
-            return (
-              <DragItem
-                soon={soon}
-                key={name}
-                label={name}
-                type={name as any}
-                id={name as any}
-                rootParentType={menuItems[name]?.rootParentType || name}
-              >
-                {name}
-              </DragItem>
-            )
-          })}
+              //   return [
+              //     <DragItem
+              //       isMeta
+              //       soon={soon}
+              //       key={`${name}Meta`}
+              //       label={name}
+              //       type={`${name}Meta` as any}
+              //       id={`${name}Meta` as any}
+              //       rootParentType={menuItems[name]?.rootParentType || name}
+              //       defaultProps={menuItems[name]?.defaultProps}
+              //     >
+              //       {name}
+              //     </DragItem>,
+              //     ...elements,
+              //   ]
+              // }
+
+              // return (
+              //   <DragItem
+              //     soon={soon}
+              //     key={name}
+              //     label={name}
+              //     type={name as any}
+              //     id={name as any}
+              //     rootParentType={menuItems[name]?.rootParentType || name}
+              //     defaultProps={menuItems[name]?.defaultProps}
+              //     >
+              //     {name}
+              //   </DragItem>
+              // )
+            })}
+        </Accordion>
+        {/* <Accordion allowMultiple defaultIndex={[0,1]} color="#fff">
+          <AccordionItem>
+            <h2>
+              <AccordionButton>
+                <Box flex="1" textAlign="left">
+                  字段
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel pb={4}>
+              
+            </AccordionPanel>
+          </AccordionItem>
+          <AccordionItem>
+            <h2>
+              <AccordionButton>
+                <Box flex="1" textAlign="left">
+                  相关表
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel pb={4}>
+              
+            </AccordionPanel>
+          </AccordionItem>
+          <AccordionItem>
+            <h2>
+              <AccordionButton>
+                <Box flex="1" textAlign="left">
+                  组件
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+            </h2>
+            <AccordionPanel pb={4}>
+              {(Object.keys(menuItems) as ComponentType[])
+                .filter(c => c.toLowerCase().includes(searchTerm.toLowerCase()))
+                .map(name => {
+                  const { children, soon } = menuItems[name] as MenuItem
+
+                  if (children) {
+                    const elements = Object.keys(children).map(childName => (
+                      <DragItem
+                        isChild
+                        key={childName}
+                        label={childName}
+                        type={childName as any}
+                        id={childName as any}
+                        rootParentType={menuItems[name]?.rootParentType || name}
+                        defaultProps={menuItems[name]?.defaultProps}
+                      >
+                        {childName}
+                      </DragItem>
+                    ))
+
+                    return [
+                      <DragItem
+                        isMeta
+                        soon={soon}
+                        key={`${name}Meta`}
+                        label={name}
+                        type={`${name}Meta` as any}
+                        id={`${name}Meta` as any}
+                        rootParentType={menuItems[name]?.rootParentType || name}
+                        defaultProps={menuItems[name]?.defaultProps}
+                      >
+                        {name}
+                      </DragItem>,
+                      ...elements,
+                    ]
+                  }
+
+                  return (
+                    <DragItem
+                      soon={soon}
+                      key={name}
+                      label={name}
+                      type={name as any}
+                      id={name as any}
+                      rootParentType={menuItems[name]?.rootParentType || name}
+                      defaultProps={menuItems[name]?.defaultProps}
+                      >
+                      {name}
+                    </DragItem>
+                  )
+              })}
+            </AccordionPanel>
+          </AccordionItem>
+        </Accordion> */}
       </Box>
     </DarkMode>
   )

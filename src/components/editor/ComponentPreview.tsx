@@ -12,6 +12,7 @@ import AccordionPreview, {
   AccordionPanelPreview,
 } from '~components/editor/previews/AccordionPreview'
 import * as Chakra from '@chakra-ui/react'
+// import * as SteedosUI from '@steedos/ui-components'
 import { getComponentBy } from '~core/selectors/components'
 import { InputRightElementPreview } from '~components/editor/previews/InputRightElement'
 import { InputLeftElementPreview } from '~components/editor/previews/InputLeftElement'
@@ -23,18 +24,68 @@ import IconPreview from './previews/IconPreview'
 import IconButtonPreview from './previews/IconButtonPreview'
 import SelectPreview from '~components/editor/previews/SelectPreview'
 import NumberInputPreview from '~components/editor/previews/NumberInputPreview'
+import { getPreviewComponent, getDroppable } from '~core/selectors/types'
 
 const ComponentPreview: React.FC<{
   componentName: string
 }> = ({ componentName, ...forwardedProps }) => {
+  console.log('===ComponentPreview===componentName==', componentName)
+  console.log('===ComponentPreview===forwardedProps==', forwardedProps)
   const component = useSelector(getComponentBy(componentName))
   if (!component) {
     console.error(`ComponentPreview unavailable for component ${componentName}`)
   }
 
   const type = (component && component.type) || null
-
+  console.log('===ComponentPreview==component===', component)
+  const previewComponentType = useSelector(getPreviewComponent(type))
+  if (!previewComponentType) {
+    console.error(`ComponentPreview unavailable for component type ${type}`)
+  }
+  const droppable = useSelector(getDroppable(type))
+  if (
+    typeof droppable === 'boolean' ||
+    (droppable instanceof Array && droppable.length)
+  ) {
+    if (droppable === true) {
+      // 表示可以拖入任意控件类型到这里
+      return (
+        <WithChildrenPreviewContainer
+          enableVisualHelper
+          component={component}
+          type={previewComponentType}
+          {...forwardedProps}
+        />
+      )
+    } else {
+      // 表示可以拖入droppable数组中指定的控件类型到这里
+      const accept: any = droppable
+      return (
+        <WithChildrenPreviewContainer
+          enableVisualHelper
+          component={component}
+          type={previewComponentType}
+          accept={accept}
+          {...forwardedProps}
+        />
+      )
+    }
+  } else {
+    // 表示不可以拖入控件到这里
+    return (
+      <PreviewContainer
+        component={component}
+        type={previewComponentType}
+        {...forwardedProps}
+      />
+    )
+  }
+  /*
   switch (type) {
+    case 'FormSection':
+      // return <AccordionPreview component={component} />
+      return <ButtonPreview component={component} />
+    // 以下是Chakra组件
     // Simple components
     case 'Badge':
     case 'Image':
@@ -153,6 +204,7 @@ const ComponentPreview: React.FC<{
     default:
       return null
   }
+  */
 }
 
 export default memo(ComponentPreview)
